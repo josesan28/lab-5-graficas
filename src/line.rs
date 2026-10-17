@@ -1,14 +1,12 @@
-use raylib::prelude::*;
+use crate::fragment::Fragment;
+use crate::vertex::Vertex;
 
-pub fn dibujar_punto(dibujo: &mut RaylibDrawHandle, posicion: Vector2, color: Color) {
-    dibujo.draw_pixel(posicion.x.round() as i32, posicion.y.round() as i32, color);
-}
-
-pub fn line(dibujo: &mut RaylibDrawHandle, start: Vector2, end: Vector2, color: Color) {
-    let mut x1 = start.x.round() as i32;
-    let mut y1 = start.y.round() as i32;
-    let x2 = end.x.round() as i32;
-    let y2 = end.y.round() as i32;
+pub fn line(start: &Vertex, end: &Vertex) -> Vec<Fragment> {
+    let mut fragments = Vec::new();
+    let mut x1 = start.transformed_position.x.round() as i32;
+    let mut y1 = start.transformed_position.y.round() as i32;
+    let x2 = end.transformed_position.x.round() as i32;
+    let y2 = end.transformed_position.y.round() as i32;
 
     let dx = (x2 - x1).abs();
     let dy = -(y2 - y1).abs();
@@ -17,7 +15,12 @@ pub fn line(dibujo: &mut RaylibDrawHandle, start: Vector2, end: Vector2, color: 
     let mut error = dx + dy;
 
     loop {
-        dibujar_punto(dibujo, Vector2::new(x1 as f32, y1 as f32), color);
+        fragments.push(Fragment::new(
+            x1 as f32,
+            y1 as f32,
+            start.color,
+            start.transformed_position.z,
+        ));
 
         if x1 == x2 && y1 == y2 {
             break;
@@ -35,10 +38,6 @@ pub fn line(dibujo: &mut RaylibDrawHandle, start: Vector2, end: Vector2, color: 
             y1 += paso_y;
         }
     }
-}
 
-pub fn triangle(dibujo: &mut RaylibDrawHandle, a: Vector2, b: Vector2, c: Vector2, color: Color) {
-    line(dibujo, a, b, color);
-    line(dibujo, b, c, color);
-    line(dibujo, c, a, color);
+    fragments
 }

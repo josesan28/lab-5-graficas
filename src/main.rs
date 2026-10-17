@@ -1,70 +1,68 @@
 use raylib::prelude::*;
 
-mod controls;
 mod fragment;
+mod framebuffer;
 mod line;
-mod obj;
-mod renderer;
-mod screen;
+mod triangle;
+mod vertex;
 
-use controls::RotationControls;
-use fragment::Fragment;
-use obj::load_obj;
-use renderer::{draw_fragments, render};
-use screen::preparar_modelo;
-
-const ANCHO_VENTANA: i32 = 800;
-const ALTO_VENTANA: i32 = 600;
-const MARGEN: f32 = 50.0;
+use framebuffer::Framebuffer;
+use triangle::triangle;
+use vertex::Vertex;
 
 pub struct Uniforms {
     pub model_matrix: Matrix,
 }
 
-fn create_model_matrix(rotation: Vector3) -> Matrix {
-    Matrix::rotate_x(rotation.x) * Matrix::rotate_y(rotation.y)
+fn render(framebuffer: &mut Framebuffer, _uniforms: &Uniforms, vertex_array: &[Vertex]) {
+    for vertices in vertex_array.chunks_exact(3) {
+        let fragments = triangle(&vertices[0], &vertices[1], &vertices[2]);
+
+        for fragment in fragments {
+            framebuffer.point(
+                fragment.position.x as i32,
+                fragment.position.y as i32,
+                fragment.color,
+            );
+        }
+    }
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let modelo = load_obj("assets/nave-graficas.obj")?;
-    let vertices_preparados =
-        preparar_modelo(&modelo.vertices, ANCHO_VENTANA, ALTO_VENTANA, MARGEN);
-    let color_lineas = Color::new(64, 224, 176, 255);
-    let mut controles = RotationControls::new();
-    let fragments = vec![
-        Fragment::new(100.0, 80.0, Vector3::new(1.0, 0.0, 0.0), 0.0),
-        Fragment::new(101.0, 80.0, Vector3::new(0.0, 1.0, 0.0), 0.0),
-        Fragment::new(102.0, 80.0, Vector3::new(0.0, 0.0, 1.0), 0.0),
-        Fragment::new(100.0, 80.0, Vector3::new(1.0, 1.0, 0.0), 0.0),
-        Fragment::new(-1.0, 80.0, Vector3::new(1.0, 1.0, 1.0), 0.0),
-    ];
-
-    let (mut raylib, hilo) = raylib::init()
-        .size(ANCHO_VENTANA, ALTO_VENTANA)
-        .title("Laboratorio 4")
+fn main() {
+    let (mut window, thread) = raylib::init()
+        .size(800, 600)
+        .title("Primer triángulo")
         .build();
 
-    raylib.set_target_fps(60);
+    window.set_target_fps(60);
 
-    while !raylib.window_should_close() {
-        controles.update(&raylib);
-        let (angulo_x, angulo_y) = controles.angles();
-        let model_matrix = create_model_matrix(Vector3::new(angulo_x, angulo_y, 0.0));
-        let uniforms = Uniforms { model_matrix };
+    let mut framebuffer = Framebuffer::new(800, 600);
+    framebuffer.set_background_color(Vector3::new(0.0, 0.0, 0.0));
+    framebuffer.init_texture(&mut window, &thread);
 
-        let mut dibujo = raylib.begin_drawing(&hilo);
-        dibujo.clear_background(Color::BLACK);
-        render(
-            &mut dibujo,
-            &uniforms,
-            &vertices_preparados,
-            &modelo.indices,
-            color_lineas,
-            ANCHO_VENTANA,
-            ALTO_VENTANA,
-        );
-        draw_fragments(&mut dibujo, &fragments);
+    let positions = [
+        Vector3::new(300.0, 200.0, 0.0),
+        Vector3::new(400.0, 400.0, 0.0),
+        Vector3::new(500.0, 200.0, 0.0),
+    ];
+
+    let vertex_array: Vec<Vertex> = positions
+        .into_iter()
+        .map(|position| {
+            let mut vertex = Vertex::new_with_color(position, Vector3::new(1.0, 1.0, 1.0));
+
+            vertex.transformed_position = position;
+            vertex
+        })
+        .collect();
+
+    let uniforms = Uniforms {
+        model_matrix: Matrix::identity(),
+    };
+
+    while !window.window_should_close() {
+        framebuffer.clear();
+        render(&mut framebuffer, &uniforms, &vertex_array);
+        framebuffer.swap_buffers(&mut window, &thread);
     }
-
-    Ok(())
 }
