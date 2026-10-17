@@ -1,6 +1,24 @@
 use raylib::prelude::*;
 
+use crate::fragment::Fragment;
 use crate::line::triangle;
+
+pub fn draw_fragments(dibujo: &mut RaylibDrawHandle, fragments: &[Fragment]) {
+    for fragment in fragments {
+        let color = Color::new(
+            (fragment.color.x.clamp(0.0, 1.0) * 255.0) as u8,
+            (fragment.color.y.clamp(0.0, 1.0) * 255.0) as u8,
+            (fragment.color.z.clamp(0.0, 1.0) * 255.0) as u8,
+            255,
+        );
+
+        dibujo.draw_pixel(
+            fragment.position.x as i32,
+            fragment.position.y as i32,
+            color,
+        );
+    }
+}
 
 pub fn draw_model(
     dibujo: &mut RaylibDrawHandle,

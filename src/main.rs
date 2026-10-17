@@ -1,14 +1,16 @@
 use raylib::prelude::*;
 
 mod controls;
+mod fragment;
 mod line;
 mod obj;
 mod renderer;
 mod screen;
 
 use controls::RotationControls;
+use fragment::Fragment;
 use obj::load_obj;
-use renderer::draw_model;
+use renderer::{draw_fragments, draw_model};
 use screen::{preparar_modelo, rotar};
 
 const ANCHO_VENTANA: i32 = 800;
@@ -21,6 +23,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         preparar_modelo(&modelo.vertices, ANCHO_VENTANA, ALTO_VENTANA, MARGEN);
     let color_lineas = Color::new(64, 224, 176, 255);
     let mut controles = RotationControls::new();
+    let fragments = vec![
+        Fragment::new(100.0, 80.0, Vector3::new(1.0, 0.0, 0.0), 0.0),
+        Fragment::new(101.0, 80.0, Vector3::new(0.0, 1.0, 0.0), 0.0),
+        Fragment::new(102.0, 80.0, Vector3::new(0.0, 0.0, 1.0), 0.0),
+        Fragment::new(100.0, 80.0, Vector3::new(1.0, 1.0, 0.0), 0.0),
+        Fragment::new(-1.0, 80.0, Vector3::new(1.0, 1.0, 1.0), 0.0),
+    ];
 
     let (mut raylib, hilo) = raylib::init()
         .size(ANCHO_VENTANA, ALTO_VENTANA)
@@ -49,6 +58,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             &modelo.indices,
             color_lineas,
         );
+        draw_fragments(&mut dibujo, &fragments);
     }
 
     Ok(())
