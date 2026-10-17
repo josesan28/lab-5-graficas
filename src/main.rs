@@ -3,10 +3,12 @@ use raylib::prelude::*;
 mod fragment;
 mod framebuffer;
 mod line;
+mod shaders;
 mod triangle;
 mod vertex;
 
 use framebuffer::Framebuffer;
+use shaders::vertex_shader;
 use triangle::triangle;
 use vertex::Vertex;
 
@@ -16,11 +18,13 @@ pub struct Uniforms {
 
 fn render(framebuffer: &mut Framebuffer, uniforms: &Uniforms, vertex_array: &[Vertex]) {
     // 1. Procesamiento de vértices
-    let _model_matrix = uniforms.model_matrix;
-    let vertices_procesados = vertex_array;
+    let transformed_vertices: Vec<Vertex> = vertex_array
+        .iter()
+        .map(|vertex| vertex_shader(vertex, uniforms))
+        .collect();
 
     // 2. Ensamblaje de primitivas
-    for vertices in vertices_procesados.chunks_exact(3) {
+    for vertices in transformed_vertices.chunks_exact(3) {
         // 3. Rasterización
         let fragments = triangle(&vertices[0], &vertices[1], &vertices[2]);
 

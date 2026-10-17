@@ -1,5 +1,6 @@
 use raylib::prelude::Vector3;
 
+#[derive(Clone)]
 pub struct Vertex {
     pub position: Vector3,
     pub transformed_position: Vector3,
