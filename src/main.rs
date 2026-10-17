@@ -3,11 +3,13 @@ use raylib::prelude::*;
 mod fragment;
 mod framebuffer;
 mod line;
+mod primitive;
 mod shaders;
 mod triangle;
 mod vertex;
 
 use framebuffer::Framebuffer;
+use primitive::primitive_assembly;
 use shaders::vertex_shader;
 use triangle::triangle;
 use vertex::Vertex;
@@ -24,9 +26,11 @@ fn render(framebuffer: &mut Framebuffer, uniforms: &Uniforms, vertex_array: &[Ve
         .collect();
 
     // 2. Ensamblaje de primitivas
-    for vertices in transformed_vertices.chunks_exact(3) {
-        // 3. Rasterización
-        let fragments = triangle(&vertices[0], &vertices[1], &vertices[2]);
+    let triangles = primitive_assembly(&transformed_vertices);
+
+    // 3. Rasterización
+    for tri in &triangles {
+        let fragments = triangle(&tri[0], &tri[1], &tri[2]);
 
         // 4. Procesamiento de fragmentos
         for fragment in fragments {
