@@ -14,10 +14,17 @@ pub struct Uniforms {
     pub model_matrix: Matrix,
 }
 
-fn render(framebuffer: &mut Framebuffer, _uniforms: &Uniforms, vertex_array: &[Vertex]) {
-    for vertices in vertex_array.chunks_exact(3) {
+fn render(framebuffer: &mut Framebuffer, uniforms: &Uniforms, vertex_array: &[Vertex]) {
+    // 1. Procesamiento de vértices
+    let _model_matrix = uniforms.model_matrix;
+    let vertices_procesados = vertex_array;
+
+    // 2. Ensamblaje de primitivas
+    for vertices in vertices_procesados.chunks_exact(3) {
+        // 3. Rasterización
         let fragments = triangle(&vertices[0], &vertices[1], &vertices[2]);
 
+        // 4. Procesamiento de fragmentos
         for fragment in fragments {
             framebuffer.point(
                 fragment.position.x as i32,
