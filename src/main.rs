@@ -10,12 +10,20 @@ mod screen;
 use controls::RotationControls;
 use fragment::Fragment;
 use obj::load_obj;
-use renderer::{draw_fragments, draw_model};
-use screen::{preparar_modelo, rotar};
+use renderer::{draw_fragments, render};
+use screen::preparar_modelo;
 
 const ANCHO_VENTANA: i32 = 800;
 const ALTO_VENTANA: i32 = 600;
 const MARGEN: f32 = 50.0;
+
+pub struct Uniforms {
+    pub model_matrix: Matrix,
+}
+
+fn create_model_matrix(rotation: Vector3) -> Matrix {
+    Matrix::rotate_x(rotation.x) * Matrix::rotate_y(rotation.y)
+}
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let modelo = load_obj("assets/nave-graficas.obj")?;
@@ -41,22 +49,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     while !raylib.window_should_close() {
         controles.update(&raylib);
         let (angulo_x, angulo_y) = controles.angles();
-
-        let vertices_pantalla = rotar(
-            &vertices_preparados,
-            angulo_x,
-            angulo_y,
-            ANCHO_VENTANA,
-            ALTO_VENTANA,
-        );
+        let model_matrix = create_model_matrix(Vector3::new(angulo_x, angulo_y, 0.0));
+        let uniforms = Uniforms { model_matrix };
 
         let mut dibujo = raylib.begin_drawing(&hilo);
         dibujo.clear_background(Color::BLACK);
-        draw_model(
+        render(
             &mut dibujo,
-            &vertices_pantalla,
+            &uniforms,
+            &vertices_preparados,
             &modelo.indices,
             color_lineas,
+            ANCHO_VENTANA,
+            ALTO_VENTANA,
         );
         draw_fragments(&mut dibujo, &fragments);
     }

@@ -1,5 +1,7 @@
 use raylib::prelude::{Vector2, Vector3};
 
+use crate::Uniforms;
+
 pub fn preparar_modelo(
     vertices: &[Vector3],
     ancho_ventana: i32,
@@ -61,28 +63,21 @@ pub fn preparar_modelo(
         .collect()
 }
 
-pub fn rotar(
+pub fn transformar_a_pantalla(
     vertices: &[Vector3],
-    angulo_x: f32,
-    angulo_y: f32,
+    uniforms: &Uniforms,
     ancho_ventana: i32,
     alto_ventana: i32,
 ) -> Vec<Vector2> {
-    let seno_x = angulo_x.sin();
-    let coseno_x = angulo_x.cos();
-    let seno_y = angulo_y.sin();
-    let coseno_y = angulo_y.cos();
     let centro_x = ancho_ventana as f32 / 2.0;
     let centro_y = alto_ventana as f32 / 2.0;
 
     vertices
         .iter()
         .map(|vertice| {
-            let y_rotada = vertice.y * coseno_x - vertice.z * seno_x;
-            let z_rotada = vertice.y * seno_x + vertice.z * coseno_x;
-            let x_rotada = vertice.x * coseno_y + z_rotada * seno_y;
+            let transformado = vertice.transform_with(uniforms.model_matrix);
 
-            Vector2::new(centro_x + x_rotada, centro_y - y_rotada)
+            Vector2::new(centro_x + transformado.x, centro_y - transformado.y)
         })
         .collect()
 }

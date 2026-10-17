@@ -1,7 +1,9 @@
 use raylib::prelude::*;
 
+use crate::Uniforms;
 use crate::fragment::Fragment;
 use crate::line::triangle;
+use crate::screen::transformar_a_pantalla;
 
 pub fn draw_fragments(dibujo: &mut RaylibDrawHandle, fragments: &[Fragment]) {
     for fragment in fragments {
@@ -20,12 +22,17 @@ pub fn draw_fragments(dibujo: &mut RaylibDrawHandle, fragments: &[Fragment]) {
     }
 }
 
-pub fn draw_model(
+pub fn render(
     dibujo: &mut RaylibDrawHandle,
-    vertices: &[Vector2],
+    uniforms: &Uniforms,
+    vertex_array: &[Vector3],
     indices: &[usize],
     color: Color,
+    ancho_ventana: i32,
+    alto_ventana: i32,
 ) {
+    let vertices = transformar_a_pantalla(vertex_array, uniforms, ancho_ventana, alto_ventana);
+
     for indices_triangulo in indices.chunks_exact(3) {
         let a = vertices[indices_triangulo[0]];
         let b = vertices[indices_triangulo[1]];
