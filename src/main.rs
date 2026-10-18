@@ -11,7 +11,7 @@ mod vertex;
 
 use framebuffer::Framebuffer;
 use primitive::primitive_assembly;
-use rasterizer::rasterize;
+use rasterizer::{TriangleMode, rasterize};
 use shaders::{fragment_shader, vertex_shader};
 use vertex::Vertex;
 
@@ -19,7 +19,12 @@ pub struct Uniforms {
     pub model_matrix: Matrix,
 }
 
-fn render(framebuffer: &mut Framebuffer, uniforms: &Uniforms, vertex_array: &[Vertex]) {
+fn render(
+    framebuffer: &mut Framebuffer,
+    uniforms: &Uniforms,
+    vertex_array: &[Vertex],
+    triangle_mode: TriangleMode,
+) {
     // 1. Procesamiento de vértices
     let transformed_vertices: Vec<Vertex> = vertex_array
         .iter()
@@ -30,7 +35,7 @@ fn render(framebuffer: &mut Framebuffer, uniforms: &Uniforms, vertex_array: &[Ve
     let triangles = primitive_assembly(&transformed_vertices);
 
     // 3. Rasterización
-    let fragments = rasterize(&triangles);
+    let fragments = rasterize(&triangles, triangle_mode);
 
     // 4. Procesamiento de fragmentos
     for fragment in fragments {
@@ -75,10 +80,11 @@ fn main() {
     let uniforms = Uniforms {
         model_matrix: Matrix::identity(),
     };
+    let triangle_mode = TriangleMode::Wireframe;
 
     while !window.window_should_close() {
         framebuffer.clear();
-        render(&mut framebuffer, &uniforms, &vertex_array);
+        render(&mut framebuffer, &uniforms, &vertex_array, triangle_mode);
         framebuffer.swap_buffers(&mut window, &thread);
     }
 }

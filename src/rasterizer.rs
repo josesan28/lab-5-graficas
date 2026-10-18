@@ -2,11 +2,28 @@ use crate::fragment::Fragment;
 use crate::triangle::triangle;
 use crate::vertex::Vertex;
 
-pub fn rasterize(triangles: &[[Vertex; 3]]) -> Vec<Fragment> {
+#[derive(Clone, Copy)]
+pub enum TriangleMode {
+    Wireframe,
+    FilledBarycentric,
+    FilledScanline,
+}
+
+pub fn rasterize(triangles: &[[Vertex; 3]], mode: TriangleMode) -> Vec<Fragment> {
     let mut fragments = Vec::new();
 
     for tri in triangles {
-        fragments.extend(triangle(&tri[0], &tri[1], &tri[2]));
+        let triangle_fragments = match mode {
+            TriangleMode::Wireframe => triangle(&tri[0], &tri[1], &tri[2]),
+            TriangleMode::FilledBarycentric => {
+                unimplemented!("El relleno baricéntrico aún no está implementado")
+            }
+            TriangleMode::FilledScanline => {
+                unimplemented!("El relleno por filas aún no está implementado")
+            }
+        };
+
+        fragments.extend(triangle_fragments);
     }
 
     fragments
@@ -16,7 +33,7 @@ pub fn rasterize(triangles: &[[Vertex; 3]]) -> Vec<Fragment> {
 mod tests {
     use raylib::prelude::Vector3;
 
-    use super::rasterize;
+    use super::{TriangleMode, rasterize};
     use crate::vertex::Vertex;
 
     fn vertex(x: f32, y: f32) -> Vertex {
@@ -30,7 +47,7 @@ mod tests {
             [vertex(2.0, 2.0), vertex(3.0, 2.0), vertex(2.0, 3.0)],
         ];
 
-        let fragments = rasterize(&triangles);
+        let fragments = rasterize(&triangles, TriangleMode::Wireframe);
 
         assert_eq!(fragments.len(), 12);
     }
