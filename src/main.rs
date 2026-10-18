@@ -80,7 +80,7 @@ fn main() {
     let uniforms = Uniforms {
         model_matrix: Matrix::identity(),
     };
-    let triangle_mode = TriangleMode::FilledBarycentric;
+    let triangle_mode = TriangleMode::FilledScanline;
 
     while !window.window_should_close() {
         framebuffer.clear();
