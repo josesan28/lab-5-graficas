@@ -12,7 +12,7 @@ mod vertex;
 use framebuffer::Framebuffer;
 use primitive::primitive_assembly;
 use rasterizer::rasterize;
-use shaders::vertex_shader;
+use shaders::{fragment_shader, vertex_shader};
 use vertex::Vertex;
 
 pub struct Uniforms {
@@ -34,10 +34,12 @@ fn render(framebuffer: &mut Framebuffer, uniforms: &Uniforms, vertex_array: &[Ve
 
     // 4. Procesamiento de fragmentos
     for fragment in fragments {
+        let color = fragment_shader(&fragment);
+
         framebuffer.point(
             fragment.position.x as i32,
             fragment.position.y as i32,
-            fragment.color,
+            color,
         );
     }
 }

@@ -1,6 +1,7 @@
 use raylib::prelude::*;
 
 use crate::Uniforms;
+use crate::fragment::Fragment;
 use crate::vertex::Vertex;
 
 fn multiply_matrix_vector4(matrix: &Matrix, vector: &Vector4) -> Vector4 {
@@ -21,4 +22,8 @@ pub fn vertex_shader(vertex: &Vertex, uniforms: &Uniforms) -> Vertex {
     result.transformed_position = Vector3::new(transformed.x, transformed.y, transformed.z);
 
     result
+}
+
+pub fn fragment_shader(fragment: &Fragment) -> Vector3 {
+    fragment.color
 }
