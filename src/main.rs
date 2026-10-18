@@ -52,7 +52,7 @@ fn render(
 fn main() {
     let (mut window, thread) = raylib::init()
         .size(800, 600)
-        .title("Primer triángulo")
+        .title("Laboratorio 5")
         .build();
 
     window.set_target_fps(60);
