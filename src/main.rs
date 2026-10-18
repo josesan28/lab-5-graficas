@@ -4,14 +4,15 @@ mod fragment;
 mod framebuffer;
 mod line;
 mod primitive;
+mod rasterizer;
 mod shaders;
 mod triangle;
 mod vertex;
 
 use framebuffer::Framebuffer;
 use primitive::primitive_assembly;
+use rasterizer::rasterize;
 use shaders::vertex_shader;
-use triangle::triangle;
 use vertex::Vertex;
 
 pub struct Uniforms {
@@ -29,17 +30,15 @@ fn render(framebuffer: &mut Framebuffer, uniforms: &Uniforms, vertex_array: &[Ve
     let triangles = primitive_assembly(&transformed_vertices);
 
     // 3. Rasterización
-    for tri in &triangles {
-        let fragments = triangle(&tri[0], &tri[1], &tri[2]);
+    let fragments = rasterize(&triangles);
 
-        // 4. Procesamiento de fragmentos
-        for fragment in fragments {
-            framebuffer.point(
-                fragment.position.x as i32,
-                fragment.position.y as i32,
-                fragment.color,
-            );
-        }
+    // 4. Procesamiento de fragmentos
+    for fragment in fragments {
+        framebuffer.point(
+            fragment.position.x as i32,
+            fragment.position.y as i32,
+            fragment.color,
+        );
     }
 }
 
