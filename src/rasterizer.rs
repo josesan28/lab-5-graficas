@@ -1,5 +1,5 @@
 use crate::fragment::Fragment;
-use crate::triangle::triangle;
+use crate::triangle::{filled_barycentric, triangle};
 use crate::vertex::Vertex;
 
 #[derive(Clone, Copy)]
@@ -15,9 +15,7 @@ pub fn rasterize(triangles: &[[Vertex; 3]], mode: TriangleMode) -> Vec<Fragment>
     for tri in triangles {
         let triangle_fragments = match mode {
             TriangleMode::Wireframe => triangle(&tri[0], &tri[1], &tri[2]),
-            TriangleMode::FilledBarycentric => {
-                unimplemented!("El relleno baricéntrico aún no está implementado")
-            }
+            TriangleMode::FilledBarycentric => filled_barycentric(&tri[0], &tri[1], &tri[2]),
             TriangleMode::FilledScanline => {
                 unimplemented!("El relleno por filas aún no está implementado")
             }
